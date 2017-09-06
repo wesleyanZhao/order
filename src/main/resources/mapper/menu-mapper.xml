@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="com.lanou.cn.mapper.MenuMapper">
+
+    <select id="getAllMenu" resultType="java.util.HashMap">
+        select
+          id
+          ,p_id AS pId
+          ,name
+          ,is_used AS isUsed
+        from
+          menu
+        order by id asc
+    </select>
+
+    <select id="getAllSelectMenu" resultType="java.util.HashMap">
+        select
+        id
+        ,p_id AS pId
+        ,url
+        ,name
+        ,is_used AS isUsed
+        from
+        menu
+        where 1 = 1
+        <if test="null != params.name and '' != params.name">
+            and name like concat('%',#{params.name},'%')
+        </if>
+        <if test="null != params.url and '' != params.url">
+            and url = #{params.url}
+        </if>
+        <if test="null != params.pId and '' != params.pId and '999' != params.pId">
+            <if test="params.pId == 0">and p_id = 0</if>
+            <if test="params.pId == 1">and p_id != 0</if>
+        </if>
+        <if test="null != params.isUsed and '' != params.isUsed and '999' != params.isUsed">
+            and is_used = #{params.isUsed}
+        </if>
+        order by id asc
+    </select>
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="com.lanou.cn.mapper.BackMapper">
+
+    <select id="back" resultType="Map" parameterType="Map">
+    SELECT
+    ord_no ordNo
+    ,ord_dtl_no ordDtlNo
+    ,prd_no prdNo
+    ,prd_dtl_no prdDtlNo
+    ,prd_count prdCount
+    ,vip_no vipNo
+    ,is_return isReturn
+    ,ord_sum ordSum
+    ,sale_sum saleSum
+    ,sp_no spNo
+    ,cash_amt cashAmt
+    ,ig_amt igAmt
+    ,is_used isUsed
+    FROM
+    order_dtl_info
+    WHERE 1=1
+    AND ord_dtl_no=#{ordDtlNo}
+    </select>
+    <select id="backThing" resultType="Map" parameterType="Map">
+        SELECT
+        ord_no ordNo
+        ,pay_date payDate
+        ,pay_type payType
+        ,pay_count payCount
+        ,vip_no vipNo
+        FROM
+        pay_info
+        WHERE ord_no=#{ordNo}
+    </select>
+    <select id="findOnlyOrdDtlInfo" resultType="Map" parameterType="Map">
+        SELECT
+        ord_crt_date ordCrtDate
+        ,ord_sts_cd ordStsCd
+        FROM
+        order_info
+        WHERE 1=1
+        AND ord_no=#{ordNo}
+
+    </select>
+    <insert id="returnsOrder" >
+        INSERT INTO
+        returns_order(ord_no,ord_dtl_no,ope_type,ope_date)
+        VALUES (#{ordNo},#{ordDtlNo},'10',now())
+    </insert>
+    <select id="prdCountOrDtlNo" resultType="Map" parameterType="Map">
+      SELECT
+      prd_count prdCount
+      ,prd_dtl_no prdDtlNo
+      ,ord_dtl_no ordDtlNo
+      FROM
+      order_dtl_info
+      WHERE 1=1
+      AND ord_no=#{ordNo}
+    </select>
+</mapper>

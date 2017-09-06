@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="com.lanou.cn.mapper.RestMapper">
+
+    <select id="getDay" parameterType="Map" resultType="Map">
+        SELECT
+          datediff(now(),ord_sts_date) dateDiff
+        FROM
+          order_state_change
+        WHERE
+          ord_no=#{ordNo}
+    </select>
+
+    <insert id="addOrder" parameterType="Map">
+    <selectKey resultType="Integer" order="AFTER" keyProperty="id">
+        SELECT LAST_INSERT_ID() as id
+    </selectKey>
+        INSERT INTO order_info
+        (ord_no,vip_no,ord_tp_cd,ord_crt_date,ord_sts_cd,old_ord_no)
+        VALUES
+        (
+         (SELECT a.ordNo FROM (SELECT concat(now(),ifnull(max(id),0)) ordNo FROM order_info) a)
+         ,#{vipNo}
+         ,'200'
+         ,now()
+         ,200
+         ,#{ordNo}
+        )
+    </insert>
+
+    <select id="getOrderId" resultType="Map">
+        SELECT
+          ord_no oldOrdNo
+        FROM
+          order_info
+        WHERE
+          id=#{id}
+    </select>
+
+    <insert id="addStatus" parameterType="Map">
+        INSERT INTO order_state_change
+        (ord_no,ord_sts,ord_sts_date)
+        VALUES
+        (#{oldOrdNo},'200',now())
+    </insert>
+
+    <insert id="addDtlOrd" parameterType="Map">
+    <selectKey resultType="Integer" order="AFTER" keyProperty="id">
+        SELECT LAST_INSERT_ID() AS id
+    </selectKey>
+        INSERT INTO order_dtl_info
+        (ord_no,ord_dtl_no,prd_no,prd_dtl_no,prd_count,vip_no,is_return,ord_sum,sale_sum,sp_no,cash_amt,ig_amt,is_used,tp_cd,tp_name,prd_name,prd_dtl_name)
+        VALUES
+        (
+          #{ordNo}
+          ,(SELECT a.no FROM (SELECT concat(#{ordNo},ifnull(max(id),0)) no FROM order_dtl_info) a)
+          ,#{prdNo}
+          ,#{prdDtlNo}
+          ,1
+          ,#{vipNo}
+          ,'y'
+          ,#{ordSum}
+          ,#{saleSum}
+          ,#{spNo}
+          ,#{case_amt}
+          ,#{ig_amt}
+          ,'y'
+          ,#{tpCd}
+          ,#{tpName}
+          ,#{prdName}
+          ,#{prdDtlName}
+        )
+    </insert>
+
+    <select id="getOrdDtl" parameterType="Map" resultType="Map">
+        SELECT
+          ord_no ordNo
+          ,ord_dtl_no ordDtlNo
+        FROM
+          order_dtl_info
+        WHERE
+          id=#{id}
+    </select>
+
+    <insert id="addReturnInfo" parameterType="Map">
+        INSERT INTO returns_order
+        (ord_no,ord_dtl_no,ope_type,ope_date)
+        VALUES
+        (#{ordNo},#{ordDtlNo},'30',now())
+    </insert>
+</mapper>  

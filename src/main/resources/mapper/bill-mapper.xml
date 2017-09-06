@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lanou.cn.mapper.BillMapper">
+
+
+    <insert id="addBillInfo" >
+        insert into bill_info
+        (
+         ord_no
+        ,vip_no
+        ,bill_amount
+        ,bill_header
+        ,ctrl_rate
+        ,bill_number
+        )
+        values
+        (
+        (SELECT * FROM (SELECT ord_no FROM order_info where id = #{params.ordId}) a)
+        ,#{params.vipNo}
+        ,#{params.billAmount}
+        ,#{params.billHeader}
+        ,#{params.ctrlRate}
+        ,#{params.billNumber}
+        )
+    </insert>
+
+    <insert id="addSignin">
+        insert into order_state_change (
+          ord_no
+         ,ord_sts
+         ,ord_sts_date
+         )
+         VALUES (
+          #{params.ordNo}
+         ,'500'
+         ,now()
+         )
+    </insert>
+</mapper>

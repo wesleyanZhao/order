@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="com.lanou.cn.mapper.OrderMapper">
+    <!--查询省-->
+    <select id="findProvinceList" resultType="java.util.HashMap">
+        SELECT
+        provinceID provinceId
+        ,province
+        FROM
+        province
+    </select>
+    <!--根据省ID查询市-->
+    <select id="findCityList" resultType="java.util.HashMap">
+        SELECT
+        city
+        ,cityID cityId
+        FROM
+        city
+        where 1=1
+        <if test="null != provinceId and 0 != provinceId">
+            AND fatherID=#{provinceId}
+        </if>
+    </select>
+    <!--查询订单分页-->
+    <select id="findOrder" resultType="java.util.HashMap">
+        select
+        oi.id id
+        ,oi.ord_no ordNo
+        ,oi.vip_no vipNo
+        ,oi.ord_tp_cd ordTpCd
+        ,oi.ord_crt_date ordCrtDate
+        ,oi.ord_sts_cd ordStsCd
+        ,oi.ord_price ordPrice
+        ,oi.real_price realPrice
+        ,oi.bill_price billPrice
+        ,oi.del_name delName
+        ,oi.bill_id billId
+        ,oi.service_date serviceDate
+        ,oi.addr_p addrP
+        ,oi.addr_c addrC
+        ,oi.addr_d addrD
+        ,oi.t_no tNo
+        from
+        order_info oi
+        WHERE 1=1
+        <if test="null != params.id and '' != params.id">
+            AND oi.id = #{params.id}
+        </if>
+
+        <if test="null != params.vipNo and '' != params.vipNo">
+            AND oi.vip_no = #{params.vipNo}
+        </if>
+        <if test="null != params.ordNo and '' != params.ordNo">
+            AND oi.ord_no = #{params.ordNo}
+        </if>
+        <if test="null != params.ordTpCd and '' != params.ordTpCd and '999'.toString() != params.ordTpCd">
+            AND oi.ord_tp_cd = #{params.ordTpCd}
+        </if>
+
+        <if test="null != params.orderDateStart and '' != params.orderDateStart">
+            and <![CDATA[oi.ord_crt_date >= #{params.orderDateStart}]]>
+        </if>
+        <if test="null != params.orderDateEnd and '' != params.orderDateEnd">
+            and <![CDATA[oi.ord_crt_date <= #{params.orderDateEnd}]]>
+        </if>
+
+        <if test="null != params.ordStsCd and '' != params.ordStsCd and '999'.toString()!= params.ordStsCd">
+            AND oi.ord_sts_cd = #{params.ordStsCd}
+        </if>
+        <if test="null != params.ordPrice and '' != params.ordPrice">
+            AND oi.ord_price = #{params.ordPrice}
+        </if>
+        <if test="null != params.realPrice and '' != params.realPrice">
+            AND oi.real_price = #{params.realPrice}
+        </if>
+        <if test="null != params.billPrice and '' != params.billPrice">
+            AND oi.bill_price = #{params.billPrice}
+        </if>
+        <if test="null != params.delName and '' != params.delName">
+            AND oi.del_name = #{params.delName}
+        </if>
+        <if test="null != params.billId and '' != params.billId">
+            AND oi.bill_id = #{params.billId}
+        </if>
+        <if test="null != params.serviceDate and '' != params.serviceDate">
+            AND oi.service_date = #{params.serviceDate}
+        </if>
+
+        <if test="null != params.provinceId and '999'.toString() != params.provinceId">
+            AND oi.addr_p= #{params.provinceId}
+        </if>
+        <if test="null != params.cityId and '999'.toString() != params.cityId">
+            AND oi.addr_c  = #{params.cityId}
+        </if>
+
+
+        <if test="null != params.addrD and '' != params.addrD">
+            AND oi.addr_d like CONCAT('%',#{params.addrD},'%')
+        </if>
+        <if test="null != params.tNo and '' != params.tNo">
+            AND oi.t_no = #{params.tNo}
+        </if>
+        order by id asc
+    </select>
+    <update id="updateOrderInfo" >
+        update
+        order_info oi
+        set oi.ord_tp_cd = #{params.ordTpCd}
+        ,oi.ord_crt_date= #{params.ordCrtDate}
+        ,oi.ord_sts_cd = #{params.ordStsCd}
+        ,oi.ord_price = #{params.ordPrice}
+        ,oi.real_price = #{params.realPrice}
+        ,oi.bill_price = #{params.billPrice}
+        ,oi.del_name = #{params.delName}
+        ,oi.bill_id = #{params.billId}
+        ,oi.service_date = #{params.serviceDate}
+        ,oi.addr_p = #{params.provinceId}
+        ,oi.addr_c = #{params.cityId}
+        ,oi.addr_d = #{params.addrD}
+        ,oi.t_no = #{params.tNo}
+        where id = #{params.id}
+
+    </update>
+    <update id="updaterdStsCd" >
+        update
+        order_info oi
+        set oi.ord_sts_cd = #{params.ordStsCd}
+
+        where oi.ord_no = #{params.ordNo}
+
+    </update>
+
+    <!--查询订单明细-->
+    <select id="findOrderDtlInfo" resultType="java.util.HashMap">
+        select
+        odi.id id
+        ,odi.ord_no ordNo
+        ,odi.ord_dtl_no ordDtlNo
+        ,odi.prd_no prdNo
+        ,odi.prd_dtl_no prdDtlNo
+        ,odi.prd_count prdCount
+        ,odi.vip_no vipNo
+        ,odi.is_return isReturn
+        ,odi.ord_sum ordSum
+        ,odi.sale_sum saleSum
+        ,odi.sp_no spNo
+        ,odi.cash_amt cashAmt
+        ,odi.ig_amt igAmt
+        ,odi.is_used isUsed
+        from
+        order_dtl_info odi
+        WHERE 1=1
+        <if test="null != params.ordDtlId and '' != params.ordDtlId">
+            and odi.id = #{params.ordDtlId}
+        </if>
+        <if test="null != params.ordNo and '' != params.ordNo">
+         and odi.ord_no = #{params.ordNo}
+        </if>
+        <if test="null != params.ordDtlNo and '' != params.ordDtlNo">
+            and odi.ord_dtl_no = #{params.ordDtlNo}
+        </if>
+        <if test="null != params.prdDtlNo and '' != params.prdDtlNo">
+            and odi.prd_dtl_no = #{params.prdDtlNo}
+        </if>
+        order by id asc
+    </select>
+
+    <update id="updateOrderDtlInfo" >
+        update
+       order_dtl_info odi
+        set
+        odi.is_return = #{params.isReturn}
+        ,odi.sale_sum = #{params.saleSum}
+        ,odi.cash_amt = #{params.cashAmt}
+        ,odi.ig_amt = #{params.igAmt}
+        ,odi.is_used = #{params.isUsed}
+        where id = #{params.id}
+
+    </update>
+
+    <insert id="addOrderStateChange" >
+      INSERT INTO order_state_change (
+      ord_no
+      , ord_sts
+      , ord_sts_date
+      )values (
+       #{params.ordNo}
+       , #{params.ordSts}
+       ,now()
+                );
+
+    </insert>
+    <select id="findOrdDtlIsReturn" resultType="java.util.HashMap">
+        select
+        odi.is_return isReturn
+        from
+        order_dtl_info odi
+        WHERE
+        odi.ord_no = #{params.ordNo}
+
+
+        order by id asc
+    </select>
+    <select id="findOrderIn" resultType="java.util.HashMap">
+        select
+        o.prd_dtl_no AS prdDtlD
+        ,o.cash_amt AS cashAmt
+        ,o.ig_amt AS cpnAmt
+        ,r.w_no AS wNo
+        ,r.occ_count AS occCount
+        ,r.prd_dtl_no AS prdDtlNo
+        FROM
+        order_dtl_info o
+        ,order_w_r r
+        WHERE o.ord_dtl_no=r.ord_dtl_no
+        <if test="null != ordDtlNo and '' != ordDtlNo">
+            AND o.ord_dtl_no = #{ordDtlNo}
+        </if>
+    </select>
+
+    <!-- 添加订单支付记录表 -->
+    <insert id="addOrdPayRec">
+        INSERT INTO
+        pay_info
+        (
+        id
+        ,ord_no
+        ,pay_date
+        ,pay_type
+        ,pay_count
+        ,vip_no
+        )
+        VALUES
+        (
+        0
+        ,(SELECT * FROM (SELECT ord_no FROM order_info where id = #{params.ordId}) a)
+        ,now()
+        ,#{params.payType}
+        ,#{params.payCount}
+        ,#{params.vipNo}
+        )
+    </insert>
+    <select id="findOrdDtlNo" resultType="java.util.HashMap">
+        select
+        ord_dtl_no AS ordDtlNo
+        from
+        order_dtl_info
+        where 1=1
+        <if test="null != params.ordNo and 0 != params.ordNo">
+            AND ord_no=#{params.ordNo}
+        </if>
+    </select>
+
+
+    <insert id="addOrder" parameterType="Map">
+      <selectKey resultType="integer" order="AFTER" keyProperty="ordId">
+          SELECT LAST_INSERT_ID() as id
+      </selectKey>
+        INSERT INTO order_info(
+        ord_no
+        ,vip_no
+        ,ord_tp_cd
+        ,ord_crt_date
+        ,ord_sts_cd
+        ,ord_price
+        ,real_price
+        ,bill_price
+        ,del_name
+        ,bill_id
+        ,service_date
+        ,addr_p
+        ,addr_c
+        ,addr_d
+        ,t_no
+        ) VALUES (
+        (select a.id from (select concat(date_format(now(),'%Y%m%d%H%i%s'),IFNULL(max(id),0) + 1 ) id from order_info) a)
+        ,#{vipNo}
+        ,'100'
+        ,now()
+        ,100
+        ,NULL
+        ,NULL
+        ,NULL
+        ,NULL
+        ,NULL
+        ,date_add(now(), interval 7 day)
+        ,NULL
+        ,NULL
+        ,NULL
+        ,NULL
+        )
+    </insert>
+
+
+    <insert id="addOrderDtl" parameterType="Map">
+        <selectKey resultType="integer" order="AFTER" keyProperty="ordDtlId">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+        INSERT INTO order_dtl_info(
+        ord_no
+        ,ord_dtl_no
+        ,prd_no
+        ,prd_dtl_no
+        ,prd_count
+        ,vip_no
+        ,is_return
+        ,ord_sum
+        ,sale_sum
+        ,sp_no
+        ,cash_amt
+        ,ig_amt
+        ,is_used
+        ,tp_cd
+        ,tp_name
+        ,prd_name
+        ,prd_dtl_name
+        ) VALUES (
+        #{ordNo}
+        ,(select a.id from (select concat(#{ordNo},IFNULL(max(id),0) + 1 ) id from order_dtl_info) a)
+        ,#{prdNo}
+        ,#{prdDtlNo}
+        ,#{num}
+        ,#{vipNo}
+        ,#{isReturn}
+        ,#{iptPrice}
+        ,#{salePrice}
+        ,NULL
+        ,NULL
+        ,NULL
+        ,'n'
+        ,#{tpCd}
+        ,#{tpName}
+        ,#{prdName}
+        ,#{prdDtlName}
+        )
+    </insert>
+
+    <select id="selectOrderNo" resultType="java.util.HashMap">
+        SELECT
+        ord_no ordNo,
+        ord_sts_cd ordSts
+        FROM
+        order_info
+        WHERE
+        id=#{params.ordId}
+    </select>
+    <!-- 添加订单主表 -->
+    <update id="updateOrder">
+        UPDATE
+        order_info
+        SET
+        ord_sts_cd=200
+        ,ord_price=#{params.ordPrice}
+        ,real_price=#{params.realPrice}
+        ,bill_price=#{params.billPrice}
+        ,del_name=#{params.delName}
+        ,bill_id=#{params.billId}
+        ,addr_p=#{params.addrP}
+        ,addr_c=#{params.addrC}
+        ,addr_d=#{params.addrD}
+        ,t_no='100'
+        WHERE
+        id=#{params.ordId}
+    </update>
+
+    <!-- 添加订单明细单号 -->
+    <update id="updateOrderDtl">
+        UPDATE
+        order_dtl_info
+        SET
+        sp_no=#{params.spNo}
+        ,cash_amt=#{params.cashAmt}
+        ,ig_amt=#{params.igAmt}
+        ,is_used='y'
+        WHERE
+        id=#{params.ordDtlId}
+    </update>
+
+    <!--添加订单关系表-->
+    <insert id="addOrderW">
+        INSERT INTO order_w_r(
+        ord_no
+        ,ord_dtl_no
+        ,w_no
+        ,occ_count
+        ,prd_no
+        ,prd_dtl_no
+        )VALUES (
+        #{params.ordNo}
+        ,#{params.ordDtlNo}
+        ,#{params.wNo}
+        ,#{params.num}
+        ,#{params.prdNo}
+        ,#{params.prdDtlNo}
+        )
+    </insert>
+    <!-- 订单仓储关系表查询 -->
+    <select id="findOrdWR" resultType="java.util.HashMap">
+        SELECT
+        w_no AS wNo
+        ,occ_count AS occCount
+        ,prd_dtl_no AS prdDtlNo
+        FROM
+        order_w_r
+        where 1=1
+        <if test="null != params.ordNo and '' != params.ordNo">
+            and ord_no = #{params.ordNo}
+        </if>
+    </select>
+
+
+
+    <insert id="addEvaluate">
+        INSERT INTO prd_com
+        (
+        ord_no
+        ,ord_sts
+        ,ord_sts_date
+        ,vip_no
+        ,prd_no
+        ,cmm_level
+        ,content
+        ,prd_dtl_no
+        )
+        VALUES(
+
+        #{params.ordNo}
+        ,'500'
+        ,now()
+        ,#{params.vipNo}
+        ,#{params.prdNo}
+        ,#{params.cmmLevel}
+        ,#{params.content}
+        ,#{params.prdDtlNo}
+        )
+
+    </insert>
+
+
+    <select id="findOrderInfoAndDtl" resultType="java.util.HashMap">
+        SELECT
+        oi.ord_no ordNo
+        ,oi.ord_crt_date ordCrtDate
+        ,oi.ord_sts_cd ordStsCd
+        ,odi.sale_sum realPrice
+        ,oi.del_name delName
+        ,oi.addr_d addrD
+        ,odi.prd_count prdCount
+        ,odi.ord_dtl_no ordDtlNo
+        ,odi.prd_dtl_no prdDtlNo
+        ,odi.prd_dtl_name prdDtlName
+        ,odi.tp_name tpName
+        ,odi.prd_name prdName
+        ,odi.prd_no prdNo
+        ,odi.tp_cd tpCd
+        ,rd.ope_type opeType
+        from
+        order_info oi
+        ,order_dtl_info odi
+        LEFT JOIN returns_order rd ON odi.ord_dtl_no = rd.ord_dtl_no
+        where
+        oi.ord_no=odi.ord_no
+        and
+        oi.vip_no=#{params.vipNo}
+        AND
+        oi.ord_no = #{params.ordNo}
+    </select>
+
+    <select id="getPrdCom" resultType="Map" parameterType="Map">
+        SELECT
+        pc.vip_no vipNo
+        ,pc.prd_dtl_no prdDtlNo
+        ,pc.cmm_level cmmLevel
+        ,pc.content content
+        ,pc.ord_sts_date ordStsDate
+        FROM
+        prd_com pc
+        WHERE
+        pc.prd_no = #{prdNo}
+    </select>
+
+    <select id="findPrdDtl" resultType="java.util.HashMap">
+    SELECT
+    sale_sum salePrice
+    ,prd_count num
+    ,prd_dtl_no prdDtlNo
+    ,(sale_sum*prd_count) price
+    ,id ordDtlId
+    from
+    order_dtl_info
+    WHERE
+    ord_no=#{ordNo}
+</select>
+    <select id="findOrdId" resultType="java.util.HashMap">
+        select
+        id AS ordId
+        from
+        order_dtl_info
+        where 1=1
+        <if test="null != params.ordNo and '' != params.ordNo">
+            AND ord_no=#{params.ordNo}
+        </if>
+    </select>
+</mapper>
